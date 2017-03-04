@@ -1,0 +1,19 @@
+---
+  - name: Create Vlans on Cisco UCS
+    ucs_vlans:
+      ucs_ip: '{{ inventory_hostname }}'
+      ucs_user: '{{ ucs_username }}'
+      ucs_pass: '{{ ucs_password }}'
+      vlans: '{{ vlans }}'
+      state: 'present'
+    tags: vlan:ucs:create
+
+  - name: Create Vlans on Cisco UCS
+    ucs_vlans:
+      ucs_ip: '{{ inventory_hostname }}'
+      ucs_user: '{{ ucs_username }}'
+      ucs_pass: '{{ ucs_password }}'
+      vlans: '{{ vlans }}'
+      state: 'present'
+    tags: vlan:ucs:delete
+

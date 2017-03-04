@@ -1,0 +1,28 @@
+---
+- name: hello world test module
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Hi there Test
+      hello:
+      register: result
+
+    - debug: var=result
+
+- name: Configure 9ks with customer Vlan
+  hosts: NX
+  connection: local
+  gather_facts: no
+  roles: 
+    - role: nxos
+  tags:  vlan:nx
+
+- name: Configure UCS with customer Vlan
+  hosts: ucs 
+  connection: local
+  gather_facts: no
+  roles:
+    - role: ucs
+  tags:  vlan:ucs
+

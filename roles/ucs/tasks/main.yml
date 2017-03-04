@@ -1,0 +1,26 @@
+---
+  - debug: var=ucs_username
+    tags: inventory
+
+  - name: UCS Inventory
+    ucs_inventory:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+    tags: inventory
+    register: inventory
+
+  - debug: var=inventory
+    tags: inventory
+
+  - name: Create Vlans on Cisco UCS
+    ucs_vlan:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vlan_id: '{{ item.id }}'
+      mcast_policy_name: ''
+      policy_owner: 'local'
+    with_items: '{{ vlans }}'
+    tags: vlan-ucs-create

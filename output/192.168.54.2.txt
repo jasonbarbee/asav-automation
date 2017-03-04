@@ -1,0 +1,49 @@
+vlan 2000
+name CustomerTest_ASAinside
+vlan 2001
+name CustomerTest_SFInside
+vlan 2002
+name CustomerTest_Mgmt
+vlan 2003
+name CustomerTest_MPLS
+vlan 2004
+name CustomerTestFailover
+
+interface Vlan1101
+  description TekLinks_Sourcefire Inside
+  no shutdown
+  vrf member teklinks
+  no ip redirects
+  ip address 192.168.200.4/28
+  no ipv6 redirects
+  hsrp 1
+    preempt
+      priority 200 
+      timers  1  3
+    ip 192.168.200.1
+
+interface Vlan1102
+  description TekLinks_ASA_Inside_12345678
+  no shutdown
+  vrf member teklinks
+  no ip redirects
+    ip address 192.168.201.4/28
+  no ipv6 redirects
+  hsrp 1
+    preempt
+      priority 200
+      timers 1 3
+    ip 192.168.201.0
+
+interface Vlan1103
+  desc TekLinks_Transport_12345678
+  no shutdown
+  vrf member teklinks
+  ip address 192.168.202.4/28
+  no ipv6 redirects
+  hsrp 1
+   preempt
+      priority 200
+     timers 1 3
+   ip 192.168.202.0
+
