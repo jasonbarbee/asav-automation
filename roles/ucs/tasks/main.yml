@@ -1,6 +1,6 @@
 ---
-  - debug: var=ucs_username
-    tags: inventory
+#  - debug: var=ucs_username
+#    tags: inventory
 
   - name: UCS Inventory
     ucs_inventory:
@@ -10,8 +10,17 @@
     tags: inventory
     register: inventory
 
-  - debug: var=inventory
-    tags: inventory
+#  - debug: var=inventory
+#    tags: inventory
+
+  - name: Check Existance of Vlans on Cisco UCS
+    ucs_vlan_exists:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_id: '{{ item.id }}'
+    with_items: '{{ vlans }}'
+    tags: create,ucs-create,ucs-exists
 
   - name: Create Vlans on Cisco UCS
     ucs_vlan:
@@ -22,5 +31,21 @@
       vlan_id: '{{ item.id }}'
       mcast_policy_name: ''
       policy_owner: 'local'
+      state: 'present'
     with_items: '{{ vlans }}'
-    tags: vlan-ucs-create
+    tags: create,ucs-create
+
+  - name:  Delete Vlans on Cisco UCS
+    ucs_vlan:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vlan_id: '{{ item.id }}'
+      mcast_policy_name: ''
+      policy_owner: 'local'
+      state: 'absent'
+    with_items: '{{ vlans }}'
+    tags: create,ucs-delete
+
+

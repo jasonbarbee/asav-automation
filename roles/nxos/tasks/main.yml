@@ -15,8 +15,8 @@
     tags: [facts,vlan,create]
     register: facts
 
-  - debug: var=facts.ansible_facts.interfaces_list
-    tags: create
+#  - debug: var=facts.ansible_facts.interfaces_list
+#    tags: create
 
   - debug: var=item.id
     tags: always
@@ -42,7 +42,7 @@
       vlan_id: "{{item.id}}"
       state:   "{{item.state | default('present') }}"
       admin_state: "{{ item.admin | default('up') }}"
-      name:    "{{ Customer_Name }}_{{ item.name }}"
+      name:    "{{ Customer_VRF }}_{{ item.name }}"
       transport: nxapi
       username: '{{ username }}'
       password: '{{ password }}'
@@ -64,12 +64,12 @@
     with_items: "{{vlans}}"
     tags: [vlan,delete]
 
-  - name: Create Interfaces for Customer '{{ Customer_Name }}'
+  - name: Create Interfaces for Customer '{{ Customer_VRF }}'
     nxos_interface:
       interface: "Vlan{{item.id}}"
       state: 'present'
       mode: layer3
-      description: "{{Customer_Name }} - {{ item.name }}"
+      description: "{{Customer_VRF }} - {{ item.name }}"
       host: "{{ inventory_hostname }}"
       username: '{{ username }}'
       password: '{{ password }}'
@@ -77,7 +77,7 @@
     with_items: "{{vlans}}"
     tags: [vlan,create]
 
-  - name: Delete Interfaces for Customer '{{ Customer_Name }}'
+  - name: Delete Interfaces for Customer '{{ Customer_VRF }}'
     nxos_interface:
       interface: "Vlan{{item.id}}"
       state: 'absent'
@@ -92,7 +92,8 @@
     template: 
       src: templates/svi.j2
       dest: output/{{inventory_hostname}}.cfg
-    tags: vlan
+    tags: template
+
 
 #  - name: Upload Configs to Nexus Cores
 #    nxos_config:

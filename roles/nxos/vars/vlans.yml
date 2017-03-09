@@ -1,9 +1,0 @@
----
-    vlans:
-      - id: 2001
-        name: SFInside
-      - id: 2002
-        name: Mgmt
-      - id: 2003
-        name: MPLS
-

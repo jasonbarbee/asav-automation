@@ -16,17 +16,17 @@ route-map ToIntranet permit 10
   match ip address prefix-list {{ Customer_VRF }} Mgmt_Software DefaultVRF
 
 {# Create vrf or for the customer #}
-vrf context {{ Customer_vrf }}
+vrf context {{ Customer_VRF }}
  {# This translates to the HSRP .1 address of the SourceFire Interface #}
   ip route 0.0.0.0/0 {{ Subnet_SF_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_SF_Inside.split('.')[3] | int +  1 }}/28
   address-family ipv4 unicast
     route-target import 1:1
-    route-target export {{ route-tag }}:1
+    route-target export {{ Customer_ID }}:1
     import map Mgmt_Software
 
 vrf context Intranet
   address-family ipv4 unicast
-    route-target import {{ route-tag }}:1
+    route-target import {{ Customer_ID }}:1
     route-target export 1:1
     export map Mgmt_Software
     import map ToIntranet
@@ -43,7 +43,7 @@ router bgp 65001
 
 
 interface Vlan{{ Vlan_SF_Inside }}
-  description {{ Customer_Name }}_Sourcefire Inside
+  description {{ Customer_VRF }}_Sourcefire Inside
   no shutdown
   vrf member {{ Customer_VRF }}
   no ip redirects
@@ -51,19 +51,17 @@ interface Vlan{{ Vlan_SF_Inside }}
   no ipv6 redirects
   hsrp 1
     preempt
-  {% if hsrp_master is defined %}
-    priority 200 
-  {% endif %}
+    priority {{SVI_oct is even | ternary('200','100') }}
     timers  1  3
     ip {{ Subnet_SF_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_SF_Inside.split('.')[3] | int + 1 }}
 
-interface Vlan{{ Vlan_ASA_Inside }}
-  description {{ Customer_Name }}_ASA_Inside_12345678
+interface Vlan{{ Vlan_MGMT_Inside }}
+  description {{ Customer_VRF }}_MGMT_Inside_12345678
   no shutdown
   vrf member {{ Customer_VRF }}
   no ip redirects
   {# Strips the last digit, increments address #}
-  ip address {{ Subnet_ASA_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_ASA_Inside.split('.')[3] | int + SVI_oct }}/28
+  ip address {{ Subnet_MGMT_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_MGMT_Inside.split('.')[3] | int + SVI_oct }}/28
   no ipv6 redirects
   hsrp 1
     preempt
@@ -71,10 +69,10 @@ interface Vlan{{ Vlan_ASA_Inside }}
     priority 200
   {% endif %}
     timers 1 3
-    ip {{ Subnet_ASA_Inside }}
+    ip {{ Subnet_MGMT_Inside }}
 
 interface Vlan{{ Vlan_Transport }}
-  desc {{ Customer_Name }}_Transport_12345678
+  desc {{ Customer_VRF }}_Transport_12345678
   no shutdown
   vrf member {{ Customer_VRF }}
   ip address {{ Subnet_Transport | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_Transport.split('.')[3] | int + SVI_oct }}/28

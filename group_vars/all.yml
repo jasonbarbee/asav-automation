@@ -6,4 +6,5 @@
         name: CustomerTest_Mgmt
       - id: 2003
         name: CustomerTest_MPLS
+    ucsvlans: { CustomerTest: 2001 }
 

@@ -62,6 +62,13 @@ options:
         required: false
         default: null
         choices: ['default', 'your_policy_name']
+    state:
+	description:
+	   - Desired State of the action - present / absent
+	required: true
+	default: true
+	choices ['True','False']
+	COMMENT: Only implemented for Global, not a/b ranges.
 
 '''
 
@@ -118,6 +125,41 @@ from ucsmsdk.mometa.fabric.FabricVlan import FabricVlan
 from library.ucs import UCS
 
 
+def ucs_vlan_exists(module):
+    vlan_name = module.params.get('vlan_name')
+    vlan_id = module.params.get('vlan_id')
+    configure_lan_seperate = module.params.get('configure_lan_seperate')
+    vlan_a = module.params.get('vlan_a')
+    vlan_b = module.params.get('vlan_b')
+    ucsm_ip = module.params.get('ip')
+    ucsm_pw = module.params.get('password')
+    ucsm_login = module.params.get('login')
+
+    ucsm = UCS(ucsm_ip, ucsm_login, ucsm_pw)
+
+    results = {}
+
+    #Login to UCSM
+    try:
+        ucsm.login()
+        results['logged_in'] = True
+    except Exception as e:
+        module.fail_json(msg=e)
+
+    defined_vlans = handle.query_children(
+                in_mo=lancloud[0], 
+                class_id="FabricVlan"
+                )
+    results = defined_vlans
+
+    try:
+        ucsm.handle.logout()
+        results['logged_out'] = True
+    except Exception as e:
+        module.fail_json(msg=e)
+
+    return results
+
 def ucs_add_vlan(module):
     vlan_name = module.params.get('vlan_name')
     vlan_id = module.params.get('vlan_id')
@@ -172,6 +214,79 @@ def ucs_add_vlan(module):
                         compression_type="included")
 
         ucsm.handle.add_mo(mo)
+
+        try:
+            ucsm.handle.commit()
+            results['changed'] = True
+
+        except Exception as e:
+            module.fail_json(msg=e)
+            results['changed'] = False
+
+    try:
+        ucsm.handle.logout()
+        results['logged_out'] = True
+    except Exception as e:
+        module.fail_json(msg=e)
+
+
+
+    return results
+
+def ucs_remove_vlan(module):
+    vlan_name = module.params.get('vlan_name')
+    vlan_id = module.params.get('vlan_id')
+    mcast_policy_name = module.params.get('mcast_policy_name')
+    policy_owner = module.params.get('policy_owner')
+    configure_lan_seperate = module.params.get('configure_lan_seperate')
+    vlan_a = module.params.get('vlan_a')
+    vlan_b = module.params.get('vlan_b')
+    ucsm_ip = module.params.get('ip')
+    ucsm_pw = module.params.get('password')
+    ucsm_login = module.params.get('login')
+
+    ucsm = UCS(ucsm_ip, ucsm_login, ucsm_pw)
+
+    results = {}
+
+    #Login to UCSM
+    try:
+        ucsm.login()
+        results['logged_in'] = True
+    except Exception as e:
+        module.fail_json(msg=e)
+
+
+#
+# Checking if configured for lan seperate per FI or not.
+#
+
+    if configure_lan_seperate == 'no':
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan", sharing="none", name=vlan_name + str(vlan_id), id=vlan_id,
+                    mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no", pub_nw_name="",
+                    compression_type="included")
+
+        try:
+            ucsm.handle.remove_mo(mo)
+            ucsm.handle.commit()
+            results['changed'] = True
+
+        except Exception as e:
+            module.fail_json(msg=e)
+            results['changed'] = False
+    else:
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan/A", sharing="none", name=vlan_name + str(vlan_a), id=str(vlan_a),
+                        mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
+                        pub_nw_name="",
+                        compression_type="included")
+        ucsm.handle.remove_mo(mo)
+
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan/B", sharing="none", name=vlan_name + str(vlan_b), id=str(vlan_b),
+                        mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
+                        pub_nw_name="",
+                        compression_type="included")
+
+        ucsm.handle.remove_mo(mo)
 
         try:
             ucsm.handle.commit()
@@ -308,7 +423,8 @@ def main():
         login             = dict(required=True),
         vlan_range=dict(required=False),
         vlan_a_range=dict(required=False),
-        vlan_b_range=dict(required=False)
+        vlan_b_range=dict(required=False),
+	state 		  = dict(required=False, default='present',choices=['present', 'absent']),
         )
     )
 
@@ -318,9 +434,13 @@ def main():
     vlan_a_range = module.params.get('vlan_a_range')
     vlan_range = module.params.get('vlan_range')
     vlan_a = module.params.get('vlan_a')
+    state = module.params.get('state')
 
     if vlan_id:
-        results = ucs_add_vlan(module)
+	if state == 'present':
+	        results = ucs_add_vlan(module)
+	else:
+                results = ucs_remove_vlan(module)
         module.exit_json(**results)
 
     elif vlan_a_range:
