@@ -189,7 +189,7 @@ def ucs_add_vlan(module):
 #
 
     if configure_lan_seperate == 'no':
-        mo = FabricVlan(parent_mo_or_dn="fabric/lan", sharing="none", name=vlan_name + str(vlan_id), id=vlan_id,
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan", sharing="none", name=vlan_name, id=vlan_id,
                     mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no", pub_nw_name="",
                     compression_type="included")
 
@@ -202,13 +202,13 @@ def ucs_add_vlan(module):
             module.fail_json(msg=e)
             results['changed'] = False
     else:
-        mo = FabricVlan(parent_mo_or_dn="fabric/lan/A", sharing="none", name=vlan_name + str(vlan_a), id=str(vlan_a),
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan/A", sharing="none", name=vlan_name, id=str(vlan_a),
                         mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
                         pub_nw_name="",
                         compression_type="included")
         ucsm.handle.add_mo(mo)
 
-        mo = FabricVlan(parent_mo_or_dn="fabric/lan/B", sharing="none", name=vlan_name + str(vlan_b), id=str(vlan_b),
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan/B", sharing="none", name=vlan_name, id=str(vlan_b),
                         mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
                         pub_nw_name="",
                         compression_type="included")
@@ -262,7 +262,7 @@ def ucs_remove_vlan(module):
 #
 
     if configure_lan_seperate == 'no':
-        mo = FabricVlan(parent_mo_or_dn="fabric/lan", sharing="none", name=vlan_name + str(vlan_id), id=vlan_id,
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan", sharing="none", name=vlan_name, id=vlan_id,
                     mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no", pub_nw_name="",
                     compression_type="included")
 
@@ -275,13 +275,13 @@ def ucs_remove_vlan(module):
             module.fail_json(msg=e)
             results['changed'] = False
     else:
-        mo = FabricVlan(parent_mo_or_dn="fabric/lan/A", sharing="none", name=vlan_name + str(vlan_a), id=str(vlan_a),
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan/A", sharing="none", name=vlan_name, id=str(vlan_a),
                         mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
                         pub_nw_name="",
                         compression_type="included")
         ucsm.handle.remove_mo(mo)
 
-        mo = FabricVlan(parent_mo_or_dn="fabric/lan/B", sharing="none", name=vlan_name + str(vlan_b), id=str(vlan_b),
+        mo = FabricVlan(parent_mo_or_dn="fabric/lan/B", sharing="none", name=vlan_name, id=str(vlan_b),
                         mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
                         pub_nw_name="",
                         compression_type="included")
@@ -356,7 +356,7 @@ def ucs_add_vlan_range(module):
     if configure_lan_seperate == 'no':
 
         for vlan in vlan_list:
-            mo = FabricVlan(parent_mo_or_dn="fabric/lan", sharing="none", name=vlan_name + str(vlan), id=str(vlan),
+            mo = FabricVlan(parent_mo_or_dn="fabric/lan", sharing="none", name=vlan_name, id=str(vlan),
                         mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no", pub_nw_name="",
                         compression_type="included")
             try:
@@ -369,7 +369,7 @@ def ucs_add_vlan_range(module):
     else:
 
         for vlan in vlan_a_list:
-            mo = FabricVlan(parent_mo_or_dn="fabric/lan/A", sharing="none", name=vlan_name + str(vlan), id=str(vlan),
+            mo = FabricVlan(parent_mo_or_dn="fabric/lan/A", sharing="none", name=vlan_name, id=str(vlan),
                             mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
                             pub_nw_name="",
                             compression_type="included")
@@ -383,7 +383,7 @@ def ucs_add_vlan_range(module):
                 results['changed'] = False
 
         for vlan in vlan_b_list:
-            mo = FabricVlan(parent_mo_or_dn="fabric/lan/B", sharing="none", name=vlan_name + str(vlan), id=str(vlan),
+            mo = FabricVlan(parent_mo_or_dn="fabric/lan/B", sharing="none", name=vlan_name, id=str(vlan),
                             mcast_policy_name=mcast_policy_name, policy_owner=policy_owner, default_net="no",
                             pub_nw_name="",
                             compression_type="included")
@@ -412,7 +412,7 @@ def main():
     module = AnsibleModule(
         argument_spec     = dict(
         vlan_name         = dict(required=True),
-        vlan_id           = dict(required=False),
+        vlan_id           = dict(required=True),
         mcast_policy_name = dict(required =False),
         policy_owner      = dict(defualt = 'local', choices = ['local', 'pending-policy', 'policy']),
         configure_lan_seperate=dict(required=False, default='no', choices=['yes', 'no']),
@@ -435,11 +435,15 @@ def main():
     vlan_range = module.params.get('vlan_range')
     vlan_a = module.params.get('vlan_a')
     state = module.params.get('state')
+    vlan_name = module.params.get('vlan_name')
 
     if vlan_id:
-	if state == 'present':
-	        results = ucs_add_vlan(module)
-	else:
+        if state == 'present':
+            if len(vlan_name) <= 16:
+                results = ucs_add_vlan(module)
+            else:
+                module.fail_json(msg='Vlan Name must be 16 char or less')
+        else:
                 results = ucs_remove_vlan(module)
         module.exit_json(**results)
 

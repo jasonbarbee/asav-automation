@@ -48,4 +48,43 @@
     with_items: '{{ vlans }}'
     tags: create,ucs-delete
 
+  - name:  Delete A/B Vlans on Cisco UCS
+    ucs_vlan:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vlan_id: '{{ item.id }}'
+      mcast_policy_name: ''
+      policy_owner: 'local'
+      state: 'absent'
+      configure_lan_seperate: 'yes'
+      vlan_a: '{{ item.id }}'
+      vlan_b: '{{ item.id }}'
+    with_items: '{{ vlans }}'
+    tags: create,ucs-delete
 
+
+  - name: Add a single Vlan to Port Channels
+    ucs_vlan_pc:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vlan_id: '{{ item.id }}'
+      pc_id: '1'
+      state: 'present'
+    with_items: '{{ vlans }}'
+    tags: create,ucs-create
+
+  - name: Remove Vlan ID from Port Channels
+    ucs_vlan_pc:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vlan_id: '{{ item.id }}'
+      pc_id: '1'
+      state: 'absent'
+    with_items: '{{ vlans }}'
+    tags: create,ucs-delete

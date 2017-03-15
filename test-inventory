@@ -1,0 +1,16 @@
+[ucs]
+192.168.123.206
+
+[ucs:vars]
+ucs_username="ucspe"
+ucs_password="ucspe"
+
+[all:vars]
+Customer_VRF='demo'
+Customer_ID='12345678'
+Subnet_SF_Inside='192.168.200.0'
+Subnet_MGMT_Inside='192.168.201.0'
+Subnet_Transport='192.168.202.0'
+Vlan_SF_Inside='1101'
+Vlan_MGMT_Inside='1102'
+Vlan_Transport='1103'

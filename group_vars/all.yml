@@ -1,10 +1,10 @@
 ---
     vlans:
       - id: 2001
-        name: CustomerTest_SFInside
+        name: SFInside
       - id: 2002
-        name: CustomerTest_Mgmt
+        name: Test_Mgmt
       - id: 2003
-        name: CustomerTest_MPLS
+        name: Test_MPLS
     ucsvlans: { CustomerTest: 2001 }
 
