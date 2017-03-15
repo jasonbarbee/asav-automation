@@ -1,14 +1,4 @@
 ---
-- name: hello world test module
-  hosts: localhost
-  connection: local
-  gather_facts: no
-  tasks:
-    - name: Hi there Test
-      hello:
-      register: result
-
-    - debug: var=result
 
 - name: Configure 9ks with customer Vlan
   hosts: NX
