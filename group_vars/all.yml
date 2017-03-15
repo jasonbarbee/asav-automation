@@ -1,10 +1,13 @@
 ---
     vlans:
+      # This Vlan is the SourceFire Inside Vlan.
       - id: 2001
-        name: SFInside
+        name: Test_SFInside
+      # This Vlan is the Management Network, and is leaked via VRF tables outside the customer's network. 
       - id: 2002
         name: Test_Mgmt
+      # Customer's Transport Network
       - id: 2003
         name: Test_MPLS
-    ucsvlans: { CustomerTest: 2001 }
-
+    # This Template is the template we will add customer Vlans.
+    vnic_template: 'test_template'

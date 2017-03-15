@@ -88,3 +88,26 @@
       state: 'absent'
     with_items: '{{ vlans }}'
     tags: create,ucs-delete
+
+  - name: Assign Vlan to VNIC Template
+    ucs_vlan_vnic:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vnic_template: '{{ vnic-template }}'
+      state: 'present'
+    with_items: '{{ vlans }}'
+    tags: create,ucs-create
+
+  - name: Remove Vlan to VNIC Template
+    ucs_vlan_vnic:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vnic_template: '{{ vnic-template }}'
+      state: 'absent'
+    with_items: '{{ vlans }}'
+    tags: create,ucs-delete
+
