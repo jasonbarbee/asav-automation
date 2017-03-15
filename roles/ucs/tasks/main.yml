@@ -1,18 +1,4 @@
 ---
-#  - debug: var=ucs_username
-#    tags: inventory
-
-  - name: UCS Inventory
-    ucs_inventory:
-      ip: '{{ inventory_hostname }}'
-      login: '{{ ucs_username }}'
-      password: '{{ ucs_password }}'
-    tags: inventory
-    register: inventory
-
-#  - debug: var=inventory
-#    tags: inventory
-
   - name: Check Existance of Vlans on Cisco UCS
     ucs_vlan_exists:
       ip: '{{ inventory_hostname }}'
