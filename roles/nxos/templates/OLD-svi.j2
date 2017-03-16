@@ -1,10 +1,3 @@
-{# Done in NX API instead of CLI
-{% for vlan in vlans %}
-vlan {{ vlan.id }}
-name {{ vlan.name }}
-{% endfor %}
-#}
-
 {# create a prefix and route map for the customer management network. #}
 ip prefix-list {{ Customer_VRF }} seq 10 permit {{ Subnet_MGMT_Inside }}/28
 
@@ -65,11 +58,9 @@ interface Vlan{{ Vlan_MGMT_Inside }}
   no ipv6 redirects
   hsrp 1
     preempt
-  {% if hsrp_master is defined %}
-    priority 200
-  {% endif %}
+    priority {{SVI_oct is even | ternary('200','100') }}
     timers 1 3
-    ip {{ Subnet_MGMT_Inside }}
+    ip {{ Subnet_MGMT_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_MGMT_Inside.split('.')[3] | int + 1 }} 
 
 interface Vlan{{ Vlan_Transport }}
   desc {{ Customer_VRF }}_Transport_12345678
@@ -79,10 +70,8 @@ interface Vlan{{ Vlan_Transport }}
   no ipv6 redirects
   hsrp 1
    preempt
-  {% if hsrp_master is defined %}
-    priority 200
-  {% endif %}
+   priority {{SVI_oct is even | ternary('200','100') }}
    timers 1 3
-   ip {{ Subnet_Transport }}
+   ip {{ Subnet_Transport  | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_Transport.split('.')[3] | int + 1 }}
 
 

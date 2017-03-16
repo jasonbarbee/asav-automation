@@ -1,0 +1,85 @@
+
+{# Order of the Vlan Variable list is critical.
+0 - SF Inside
+1 - Management
+2 - Transport
+#}
+
+{# create a prefix and route map for the customer management network. #}
+ip prefix-list {{ Customer_VRF }} seq 10 permit {{  vlans[1].subnet}}/28
+
+route-map {{ Customer_VRF }} permit 10
+  match ip address prefix-list {{ Customer_VRF }}
+
+{# Add the new Customer to the prefix list in the ToIntranet Route Map. #}
+route-map ToIntranet permit 10
+  match ip address prefix-list {{ Customer_VRF }} Mgmt_Software DefaultVRF
+
+{# Create vrf or for the customer #}
+vrf context {{ Customer_VRF }}
+ {# This translates to the HSRP .1 address of the SourceFire Interface #}
+  ip route 0.0.0.0/0 {{ vlans[0].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[0].subnet.split('.')[3] | int +  1 }}/28
+  address-family ipv4 unicast
+    route-target import 1:1
+    route-target export {{ Customer_ID }}:1
+    import map Mgmt_Software
+
+vrf context Intranet
+  address-family ipv4 unicast
+    route-target import {{ Customer_ID }}:1
+    route-target export 1:1
+    export map Mgmt_Software
+    import map ToIntranet
+    import vrf default map ToIntranet
+    export vrf default map Mgmt_Software
+
+router bgp 65001
+  address-family ipv4 unicast
+      vrf {{ Customer_VRF }} 
+    address-family ipv4 unicast
+      redistribute direct route-map permit-all
+
+{# Order of the Vlan Variable list is critical.
+0 - SF Inside
+1 - Management
+2 - Transport
+#}
+
+interface Vlan{{ vlans[0].id }}
+  description {{ Customer_VRF }}_Sourcefire Inside
+  no shutdown
+  no ip redirects
+  ip address {{ vlans[0].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[0].subnet.split('.')[3] | int + SVI_oct }}/28
+  no ipv6 redirects
+  hsrp 1
+  priority {{SVI_oct is even | ternary('200','100') }}
+  timers  1  3
+  ip {{ vlans[0].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[0].subnet.split('.')[3] | int + 1 }}
+
+interface Vlan{{ vlans[0].id }}
+  description {{ Customer_VRF }}_MGMT_Inside_12345678
+  no shutdown
+  no ip redirects
+  {# Strips the last digit, increments address #}
+  ip address {{ vlans[1].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[1].subnet.split('.')[3] | int + SVI_oct }}/28
+  no ipv6 redirects
+  hsrp 1
+  priority {{SVI_oct is even | ternary('200','100') }}
+  timers 1 3
+  ip {{ vlans[1].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[1].subnet.split('.')[3] | int + 1 }}
+
+interface Vlan{{ vlans[2].id }}
+  desc {{ Customer_VRF }}_Transport_12345678
+  no shutdown
+  ip address {{ vlans[2].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[2].subnet.split('.')[3] | int + SVI_oct }}/28
+  no ipv6 redirects
+  hsrp 1
+  priority {{SVI_oct is even | ternary('200','100') }}
+  timers 1 3
+  ip {{ vlans[2].subnet  | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[2].subnet.split('.')[3] | int + 1 }}
+
+
+
+
+
+

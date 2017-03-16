@@ -1,104 +1,24 @@
 ---
-  - name: Setup Nexus NX-OS Provider
-    set_fact:
-      cli:
-        host: '{{ inventory_hostname }}'
-        username: '{{ username}}'
-        password: '{{ password }}'
-        transport: nxapi
-    tags: always
-
-  - name: Download list of vlans from 9ks
-    nxos_facts:
-      provider: '{{ cli }}'
-      gather_subset: legacy
-    tags: [facts,vlan,create]
-    register: facts
-
-#  - debug: var=facts.ansible_facts.interfaces_list
-#    tags: create
-
-  - debug: var=item.id
-    tags: always
-    with_items: '{{ vlans }}'
-    tags: facts
-
-  - name: Check if Vlan exists on 9ks
-    fail: 
-      msg: "{{item.id }} -  Vlan already exists on the 9ks."
-    when: item.id | string in facts.ansible_facts.vlan_list
-    with_items: '{{ vlans }}'
-    tags: [vlan,create]
-
-  - name: Check if Interface Vlan exists on 9ks
-    fail:
-      msg: '"Vlan"{{item.id }} -  Interface Vlan already exists on the 9ks.'
-    when: '("Vlan" + (item.id | string) ) in facts.ansible_facts.interfaces_list'
-    with_items: '{{ vlans }}'
-    tags: [vlan,create]
-
-  - name: Create Customer Vlans on Nexus 9k
-    nxos_vlan:
-      vlan_id: "{{item.id}}"
-      state:   "{{item.state | default('present') }}"
-      admin_state: "{{ item.admin | default('up') }}"
-      name:    "{{ Customer_VRF }}_{{ item.name }}"
-      transport: nxapi
-      username: '{{ username }}'
-      password: '{{ password }}'
+- name: Setup Nexus NX-OS Provider
+  set_fact:
+    nxapi:
       host: '{{ inventory_hostname }}'
-      port: 80
-    with_items: "{{vlans}}"
-    tags: [vlan,create]
-
-  - name: Delete Customer Vlans on Nexus 9k
-    nxos_vlan:
-      vlan_id: "{{item.id}}"
-      state:   "{{'absent' }}"
-      admin_state: "{{ item.admin | default('up') }}"
-      transport: nxapi
-      username: '{{ username }}'
+      username: '{{ username}}'
       password: '{{ password }}'
+      transport: nxapi
+    cli:
       host: '{{ inventory_hostname }}'
-      port: 80
-    with_items: "{{vlans}}"
-    tags: [vlan,delete]
-
-  - name: Create Interfaces for Customer '{{ Customer_VRF }}'
-    nxos_interface:
-      interface: "Vlan{{item.id}}"
-      state: 'present'
-      mode: layer3
-      description: "{{Customer_VRF }} - {{ item.name }}"
-      host: "{{ inventory_hostname }}"
-      username: '{{ username }}'
+      username: '{{ username}}'
       password: '{{ password }}'
-      transport: nxapi
-    with_items: "{{vlans}}"
-    tags: [vlan,create]
+      transport: cli
+  tags: always
 
-  - name: Delete Interfaces for Customer '{{ Customer_VRF }}'
-    nxos_interface:
-      interface: "Vlan{{item.id}}"
-      state: 'absent'
-      host: "{{ inventory_hostname }}"
-      username: '{{ username }}'
-      password: '{{ password }}'
-      transport: nxapi
-    with_items: "{{vlans}}"
-    tags: [vlan,delete]
+- include: create.yml
+  tags:
+    - nx-create
+    - create
+- include: delete.yml 
+  tags:
+    - nx-delete
+    - delete
 
-  - name: Build Vlans and SVI Interfaces
-    template: 
-      src: templates/svi.j2
-      dest: output/{{inventory_hostname}}.cfg
-    tags: template
-
-
-#  - name: Upload Configs to Nexus Cores
-#    nxos_config:
-#      src: output/{{inventory_hostname}}.cfg
-#      provider: '{{  provider }}'
-#    tags: vlan
-
-        

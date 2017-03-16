@@ -1,0 +1,44 @@
+  - name: Delete Customer Vlans on Nexus 9k
+    nxos_vlan:
+      vlan_id: "{{item.id}}"
+      state:   "{{'absent' }}"
+      admin_state: "{{ item.admin | default('up') }}"
+      transport: nxapi
+      username: '{{ username }}'
+      password: '{{ password }}'
+      host: '{{ inventory_hostname }}'
+      port: 80
+    with_items: "{{vlans}}"
+
+  - name: Delete Interfaces for Customer '{{ Customer_VRF }}'
+    nxos_interface:
+      interface: "Vlan{{item.id}}"
+      state: 'absent'
+      host: "{{ inventory_hostname }}"
+      username: '{{ username }}'
+      password: '{{ password }}'
+      transport: nxapi
+    with_items: "{{vlans}}"
+
+  - name:  Build Customer VRF
+    nxos_vrf:
+      vrf: '{{ Customer_VRF }}'
+      provider: '{{ nxapi }}'
+      state: 'absent'
+
+  - name: BUILD Template -  Delete Nexus VRF,Interfaces, and prefix lists.
+    template:
+      src: templates/delete.j2
+      dest: output/{{inventory_hostname}}-delete.cfg
+
+  # Use the CLI here. NXAPI rejects it with object does not exist, where CLI can force it.
+  - name: APPLY Config -  Delete Nexus VRF,Interfaces, and prefix lists.
+    nxos_config:
+      src: output/{{inventory_hostname}}-delete.cfg
+      provider: '{{ cli }}'
+      match: none
+      force: true
+
+  - debug: msg='Reminder - Fix force when Ansible 2.3 comes out, use the timeout variable.'
+    run_once: true
+

@@ -1,0 +1,38 @@
+
+interface Vlan{{ Vlan_SF_Inside }}
+  description {{ Customer_VRF }}_Sourcefire Inside
+  no shutdown
+  no ip redirects
+  ip address {{ Subnet_SF_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_SF_Inside.split('.')[3] | int + SVI_oct }}/28
+  no ipv6 redirects
+  hsrp 1
+  preempt
+  priority {{SVI_oct is even | ternary('200','100') }}
+  timers  1  3
+  ip {{ Subnet_SF_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_SF_Inside.split('.')[3] | int + 1 }}
+
+interface Vlan{{ Vlan_MGMT_Inside }}
+  description {{ Customer_VRF }}_MGMT_Inside_12345678
+  no shutdown
+  no ip redirects
+  {# Strips the last digit, increments address #}
+  ip address {{ Subnet_MGMT_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_MGMT_Inside.split('.')[3] | int + SVI_oct }}/28
+  no ipv6 redirects
+  hsrp 1
+  preempt
+  priority {{SVI_oct is even | ternary('200','100') }}
+  timers 1 3
+  ip {{ Subnet_MGMT_Inside | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_MGMT_Inside.split('.')[3] | int + 1 }}
+
+interface Vlan{{ Vlan_Transport }}
+  desc {{ Customer_VRF }}_Transport_12345678
+  no shutdown
+  ip address {{ Subnet_Transport | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_Transport.split('.')[3] | int + SVI_oct }}/28
+  no ipv6 redirects
+  hsrp 1
+  preempt
+  priority {{SVI_oct is even | ternary('200','100') }}
+  timers 1 3
+  ip {{ Subnet_Transport  | regex_replace('(^.*\.).*$', '\\1') }}{{Subnet_Transport.split('.')[3] | int + 1 }}
+
+

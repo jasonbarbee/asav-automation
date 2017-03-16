@@ -1,0 +1,18 @@
+no ip prefix-list {{ Customer_VRF }}
+
+no route-map {{ Customer_VRF }}
+
+route-map ToIntranet permit 10
+  no match ip address prefix-list {{ Customer_VRF }}
+
+{#
+router bgp 65001
+  address-family ipv4 unicast
+  no vrf {{ Customer_VRF }}
+#}
+vrf context Intranet
+  address-family ipv4 unicast
+   no route-target import {{ Customer_ID }}:1
+
+
+

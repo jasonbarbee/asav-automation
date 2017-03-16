@@ -1,0 +1,77 @@
+---
+  - name:  Delete Vlans on Cisco UCS
+    ucs_vlan:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vlan_id: '{{ item.id }}'
+      mcast_policy_name: ''
+      policy_owner: 'local'
+      state: 'absent'
+    with_items: '{{ vlans }}'
+
+  - name:  Delete A/B Vlans on Cisco UCS
+    ucs_vlan:
+      ip: '{{ inventory_hostname }}'
+      login: '{{ ucs_username }}'
+      password: '{{ ucs_password }}'
+      vlan_name: '{{ item.name }}'
+      vlan_id: '{{ item.id }}'
+      mcast_policy_name: ''
+      policy_owner: 'local'
+      state: 'absent'
+      configure_lan_seperate: 'yes'
+      vlan_a: '{{ item.id }}'
+      vlan_b: '{{ item.id }}'
+    with_items: '{{ vlans }}'
+
+# Deleting the Vlan removes it from the Port Channel and VNIC
+#  - block:
+#    - name: Remove Vlan ID from Port Channel 10
+#      ucs_vlan_pc:
+#        ip: '{{ inventory_hostname }}'
+#        login: '{{ ucs_username }}'
+#        password: '{{ ucs_password }}'
+#        vlan_name: '{{ item.name }}'
+#        vlan_id: '{{ item.id }}'
+#        pc_id: '10'
+#        state: 'absent'
+#      with_items: '{{ vlans }}'
+#    rescue: 
+#     - debug: msg='Failed to remove port channel 10'
+#
+#  - block:
+#    - name: Remove Vlan ID from Port Channel 11
+#      ucs_vlan_pc:
+#        ip: '{{ inventory_hostname }}'
+#        login: '{{ ucs_username }}'
+#        password: '{{ ucs_password }}'
+#        vlan_name: '{{ item.name }}'
+#        vlan_id: '{{ item.id }}'
+#        pc_id: '11'
+#        state: 'absent'
+#      with_items: '{{ vlans }}'
+#    rescue:
+#     - debug: msg='Failed to remove port channel 10'
+
+#  - name: Remove Vlan to VNIC Template A
+#    ucs_vlan_vnic:
+#      ip: '{{ inventory_hostname }}'
+#      login: '{{ ucs_username }}'
+#      password: '{{ ucs_password }}'
+#      vlan_name: '{{ item.name }}'
+#      vnic_template: '{{ vnic_template_a }}'
+#      state: 'absent'
+#    with_items: '{{ vlans }}'
+#
+#  - name: Remove Vlan to VNIC Template B
+#    ucs_vlan_vnic:
+#      ip: '{{ inventory_hostname }}'
+#      login: '{{ ucs_username }}'
+#      password: '{{ ucs_password }}'
+#      vlan_name: '{{ item.name }}'
+#      vnic_template: '{{ vnic_template_b }}'
+#      state: 'absent'
+#    with_items: '{{ vlans }}'
+
