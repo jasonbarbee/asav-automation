@@ -121,7 +121,7 @@ class VMwareDvsPortgroup(object):
         self.portgroup_type = self.module.params['portgroup_type']
         self.allow_mac_changes = self.module.params['allow_mac_changes']
         self.allow_forged_transmits = self.module.params['allow_forged_transmits']
-        self.allow_promiscuous = self.module.params['promiscuous']
+        self.allow_promiscuous = self.module.params['allow_promiscuous']
         self.dv_switch = None
         self.state = self.module.params['state']
         self.content = connect_to_api(module)
@@ -153,17 +153,17 @@ class VMwareDvsPortgroup(object):
         pvlan = vim.VMwareDVSPvlanConfigSpec()
         pvlan.operation = "add"
         pvlan.pvlanEntry = vim.VMwareDVSPvlanMapEntry()
-        pvlan.pvlanEntry.primaryVlanId = '2003'
+        pvlan.pvlanEntry.primaryVlanId = 2003
         pvlan.pvlanEntry.pvlanType = "promiscuous"
-        pvlan.pvlanEntry.secondaryVlanId = '2005'
+        pvlan.pvlanEntry.secondaryVlanId = 2005
         config.PvlanConfigSpec += pvlan
 
         pvlan = vim.VMwareDVSPvlanConfigSpec()
         pvlan.operation = "add"
         pvlan.pvlanEntry = vim.VMwareDVSPvlanMapEntry()
-        pvlan.pvlanEntry.primaryVlanId = "2003"
+        pvlan.pvlanEntry.primaryVlanId = 2003
         pvlan.pvlanEntry.pvlanType = "isolated"
-        pvlan.pvlanEntry.secondaryVlanId = "2005"
+        pvlan.pvlanEntry.secondaryVlanId = 2005
         config.PvlanConfigSpec += pvlan
 
         spec = [config]
@@ -214,9 +214,9 @@ def main():
                          switch_name=dict(required=True, type='str'),
                          vlan_id=dict(required=True, type='int'),
                          num_ports=dict(required=True, type='int'),
-                         allow_mac_changes=dict(required=True, type='bool',default=False),
-                         allow_forged_transmits=dict(required=True, type='bool',default=False),
-                         allow_promiscuous=dict(required=True, type='bool',default=False),
+                         allow_mac_changes=dict(required=False, type='bool',default=False),
+                         allow_forged_transmits=dict(required=False, type='bool',default=False),
+                         allow_promiscuous=dict(required=False, type='bool',default=False),
                          portgroup_type=dict(required=True, choices=['earlyBinding', 'lateBinding', 'ephemeral'], type='str'),
                          state=dict(default='present', choices=['present', 'absent'], type='str')))
 

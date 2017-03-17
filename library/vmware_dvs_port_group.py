@@ -121,7 +121,8 @@ class VMwareDvsPortgroup(object):
         self.portgroup_type = self.module.params['portgroup_type']
         self.allow_mac_changes = self.module.params['allow_mac_changes']
         self.allow_forged_transmits = self.module.params['allow_forged_transmits']
-        self.allow_promiscuous = self.module.params['promiscuous']
+        self.allow_promiscuous = self.module.params['allow_promiscuous']
+        self.private_vlan_id = self.module.params['private_vlan_id']
         self.dv_switch = None
         self.state = self.module.params['state']
         self.content = connect_to_api(module)
@@ -160,13 +161,17 @@ class VMwareDvsPortgroup(object):
 
         # vim.VmwareDistributedVirtualSwitchVlanIdSpec() does not exist in the
         # pyvmomi documentation but this is the correct managed object type
-        config.defaultPortConfig.vlan = vim.VmwareDistributedVirtualSwitchVlanIdSpec()
-        config.defaultPortConfig.vlan.inherited = False
-        config.defaultPortConfig.vlan.vlanId = self.vlan_id
+	if self.private_vlan_id > 0:
+	       config.defaultPortConfig.vlan = vim.VmwareDistributedVirtualSwitchPvlanSpec()
+	       config.defaultPortConfig.vlan.pvlanId = self.private_vlan_id
+	else:
+        	config.defaultPortConfig.vlan = vim.VmwareDistributedVirtualSwitchVlanIdSpec()
+	        config.defaultPortConfig.vlan.inherited = False
+		config.defaultPortConfig.vlan.vlanId = self.vlan_id
         config.defaultPortConfig.securityPolicy = vim.dvs.VmwareDistributedVirtualSwitch.SecurityPolicy()
-        config.defaultPortConfig.securityPolicy.allowPromiscuous = vim.BoolPolicy(value=allow_promiscuous)
-        config.defaultPortConfig.securityPolicy.forgedTransmits = vim.BoolPolicy(value=allow_forged_transmits)
-        config.defaultPortConfig.securityPolicy.macChanges = vim.BoolPolicy(value=allow_mac_changes)
+        config.defaultPortConfig.securityPolicy.allowPromiscuous = vim.BoolPolicy(value=self.allow_promiscuous)
+        config.defaultPortConfig.securityPolicy.forgedTransmits = vim.BoolPolicy(value=self.allow_forged_transmits)
+        config.defaultPortConfig.securityPolicy.macChanges = vim.BoolPolicy(value=self.allow_mac_changes)
         config.type = self.portgroup_type
 
         spec = [config]
@@ -216,9 +221,10 @@ def main():
                          switch_name=dict(required=True, type='str'),
                          vlan_id=dict(required=True, type='int'),
                          num_ports=dict(required=True, type='int'),
-                         allow_mac_changes=dict(required=True, type='bool',default=False),
-                         allow_forged_transmits=dict(required=True, type='bool',default=False),
-                         allow_promiscuous=dict(required=True, type='bool',default=False),
+                         allow_mac_changes=dict(required=False, type='bool',default=False),
+                         allow_forged_transmits=dict(required=False, type='bool',default=False),
+                         allow_promiscuous=dict(required=False, type='bool',default=False),
+                         private_vlan_id=dict(required=False, type='int'),
                          portgroup_type=dict(required=True, choices=['earlyBinding', 'lateBinding', 'ephemeral'], type='str'),
                          state=dict(default='present', choices=['present', 'absent'], type='str')))
 
