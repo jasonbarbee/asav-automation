@@ -1,13 +1,27 @@
 ---
+    Customer_ID: '12345678'
+    Customer_VRF: 'example'
+
     vlans:
       # This Vlan is the SourceFire Inside Vlan.
       - id: 2001
         name: Test_SFInside
+        subnet: '192.168.200.0'
       # This Vlan is the Management Network, and is leaked via VRF tables outside the customer's network. 
       - id: 2002
         name: Test_Mgmt
+        subnet: '192.168.201.0'
       # Customer's Transport Network
       - id: 2003
         name: Test_MPLS
+        subnet: '192.168.202.0'
+    # Subnet IP Addressing
+    Subnet_SF_Inside: '192.168.200.0'
+    Subnet_MGMT_Inside: '192.168.201.0'
+    Subnet_Transport: '192.168.202.0'
+
+
     # This Template is the template we will add customer Vlans.
-    vnic_template: 'test_template'
+    vnic_template_a: 'MOBL_vNIC_INT_A'
+    vnic_template_b: 'MOBL_vNIC_INT_B'
+
