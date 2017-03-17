@@ -1,0 +1,17 @@
+  - name: Create Customer portgroup
+    vmware_dvs_port_group:
+      hostname: '{{ inventory_hostname }}'
+      username: '{{vcenter_username}}'
+      password: '{{vcenter_password}}'
+      portgroup_name: '{{ Customer_VRF }}_{{item.name}}'
+      switch_name: dvSwitch
+      vlan_id: '{{ item.id }}'
+      num_ports: 10
+      portgroup_type: "ephemeral"
+      validate_certs: false
+      state: present
+      allow_mac_changes: True
+      allow_promiscuous: True
+      allow_forged_transmits: True
+    with_items: '{{vlans}}'
+
