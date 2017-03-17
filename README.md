@@ -4,14 +4,22 @@
 * UCS Vlans, Assignment to Port Channels, Assignment to VNIC Template
 * Vmware Distributed switch
 
-# Define inventory file like this
-```
-[all:vars]
-Customer_VRF='example'
-Customer_ID='12345678'
-Subnet_SF_Inside='192.168.200.0'
-Subnet_MGMT_Inside='192.168.201.0'
-Subnet_Transport='192.168.202.0'
+# Define Ansible Inventory file like this
+```yaml
+[NX]
+192.168.123.10 SVI_oct='2'
+192.168.123.11 SVI_oct='3'
+
+[NX:vars]
+username='nxapi'
+password='nxapi'
+
+[ucs]
+192.168.123.206
+
+[ucs:vars]
+ucs_username="ucspe"
+ucs_password="ucspe"
 
 ```
 
