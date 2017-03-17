@@ -4,6 +4,13 @@
 * UCS Vlans, Assignment to Port Channels, Assignment to VNIC Template
 * Vmware Distributed switch
 
+Requirements
+* python 2.7 or higher 
+* Ansible 2.2+
+* Custom modules included in the repo
+* Cisco UCSM-SDK - pip install ucsmsdk
+* PyVmomi Vmware SDK - pip install pyvmomi
+
 # Define Ansible Inventory file like this
 ```yaml
 [NX]
