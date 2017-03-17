@@ -168,12 +168,11 @@ def main():
         if state == 'present':
             if len(vlan_name) <= 16:
                 results = ucs_add_vlan_to_vnic(module)
-                module.exit_json(**results)
             else:
                 module.fail_json(msg='Vlan Name must be 16 char or less')
         else:
                 results = ucs_remove_vlan_from_vnic(module)
-                module.exit_json(**results)
+        module.exit_json(**results)
     else:
         module.fail_json(msg='Missing vlan name.')
 
