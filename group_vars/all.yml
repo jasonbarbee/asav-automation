@@ -5,15 +5,15 @@
     vlans:
       # This Vlan is the SourceFire Inside Vlan.
       - id: 2001
-        name: Test_SFInside
+        name: SFInside
         subnet: '192.168.200.0'
       # This Vlan is the Management Network, and is leaked via VRF tables outside the customer's network. 
       - id: 2002
-        name: Test_Mgmt
+        name: Mgmt
         subnet: '192.168.201.0'
       # Customer's Transport Network
       - id: 2003
-        name: Test_MPLS
+        name: MPLS
         subnet: '192.168.202.0'
     # Subnet IP Addressing
     Subnet_SF_Inside: '192.168.200.0'
