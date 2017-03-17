@@ -95,11 +95,12 @@ def ucs_add_vlan_to_pc(module):
     FILIST = ['A', 'B']
     for FI in FILIST:
         obj = ucsm.handle.query_dn("fabric/lan")
+	# Attaches a single Global Vlan to Port Channel
         try:
-            mo = FabricEthLan(parent_mo_or_dn=obj, id=FI)
-            mo_1 = FabricVlan(parent_mo_or_dn=mo, sharing="none", name=vlan_name, id=vlan_id, mcast_policy_name="", policy_owner="local", default_net="no", pub_nw_name="", compression_type="included")
+#            mo = FabricEthLan(parent_mo_or_dn=obj, id=FI)
+            mo_1 = FabricVlan(parent_mo_or_dn=obj, sharing="none", name=vlan_name, id=vlan_id, mcast_policy_name="", policy_owner="local", default_net="no", pub_nw_name="", compression_type="included")
             mo_1_1 = FabricEthVlanPc(parent_mo_or_dn=mo_1, name=vlan_name, descr="", is_native=is_native, admin_speed=admin_speed, switch_id=FI, admin_state="enabled", oper_speed=admin_speed, port_id=pc_id)
-            ucsm.handle.add_mo(mo, modify_present=True)
+            ucsm.handle.add_mo(mo_1, modify_present=True)
 
             ucsm.handle.commit()
             results['changed'] = True

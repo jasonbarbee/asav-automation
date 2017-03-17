@@ -1,18 +1,24 @@
 ---
 
+- name: Configure UCS with customer Vlan
+  hosts: ucs-hosts
+  connection: local
+  gather_facts: no
+  roles:
+    - role: ucs
+
 - name: Configure 9ks with customer Vlan
   hosts: NX
   connection: local
   gather_facts: no
   roles: 
     - role: nxos
-  tags:  vlan:nx
 
-- name: Configure UCS with customer Vlan
-  hosts: ucs 
+- name:  Configure Vcenter
+  hosts: vcenter
   connection: local
   gather_facts: no
   roles:
-    - role: ucs
-  tags:  vlan:ucs
+    - role: vcenter
+  tags: vcenter
 
