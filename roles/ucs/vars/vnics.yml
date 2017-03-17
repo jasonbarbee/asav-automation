@@ -1,0 +1,4 @@
+---
+    # Site Specific UCS Customer VNICs
+    vnic_template_a: 'MOBL_vNIC_INT_A'
+    vnic_template_b: 'MOBL_vNIC_INT_B'

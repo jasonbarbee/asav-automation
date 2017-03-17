@@ -1,17 +1,18 @@
 ---
-- name: Setup Nexus NX-OS Provider
-  set_fact:
-    nxapi:
-      host: '{{ inventory_hostname }}'
-      username: '{{ username}}'
-      password: '{{ password }}'
-      transport: nxapi
-    cli:
-      host: '{{ inventory_hostname }}'
-      username: '{{ username}}'
-      password: '{{ password }}'
-      transport: cli
-  tags: always
+# Moved to Nexus Group Variable
+# - name: Setup Nexus NX-OS Provider
+#   set_fact:
+#     nxapi:
+#       host: '{{ inventory_hostname }}'
+#       username: '{{ username}}'
+#       password: '{{ password }}'
+#       transport: nxapi
+#     cli:
+#       host: '{{ inventory_hostname }}'
+#       username: '{{ username}}'
+#       password: '{{ password }}'
+#       transport: cli
+#   tags: always
 
 - include: create.yml
   tags:
