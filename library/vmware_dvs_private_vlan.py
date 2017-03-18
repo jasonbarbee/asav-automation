@@ -113,12 +113,9 @@ except ImportError:
 class VMwareDvsPortgroup(object):
     def __init__(self, module):
         self.module = module
-        self.dvs_portgroup = None
         self.switch_name = self.module.params['switch_name']
-        self.portgroup_name = self.module.params['portgroup_name']
-        self.vlan_id = self.module.params['vlan_id']
-        self.num_ports = self.module.params['num_ports']
-        self.portgroup_type = self.module.params['portgroup_type']
+        self.public_vlan_id = self.module.params['public_vlan_id']
+        self.private_vlan_id = self.module.params['private_vlan_id']
         self.allow_mac_changes = self.module.params['allow_mac_changes']
         self.allow_forged_transmits = self.module.params['allow_forged_transmits']
         self.allow_promiscuous = self.module.params['allow_promiscuous']
@@ -149,37 +146,61 @@ class VMwareDvsPortgroup(object):
 
     def create_port_group(self):
         config = vim.VMwareDVSConfigSpec()
+	private_vlan_config = []
+	#  pvlan_map_entry = vim.dvs.VmwareDistributedVirtualSwitch.PvlanMapEntry()
+	#  pvlan_config_spec = vim.dvs.VmwareDistributedVirtualSwitch.PvlanConfigSpec()
+	#  pvlan_map_entry.primaryVlanId = pvlan_idx
+	#  pvlan_map_entry.secondaryVlanId = pvlan_idx
+	#  pvlan_map_entry.pvlanType = "promiscuous"
+	#  pvlan_config_spec.pvlanEntry = pvlan_map_entry
+	#  pvlan_config_spec.operation = vim.ConfigSpecOperation.add
         # Primary
-        pvlan = vim.VMwareDVSPvlanConfigSpec()
-        pvlan.operation = "add"
-        pvlan.pvlanEntry = vim.VMwareDVSPvlanMapEntry()
-        pvlan.pvlanEntry.primaryVlanId = 2003
-        pvlan.pvlanEntry.pvlanType = "promiscuous"
-        pvlan.pvlanEntry.secondaryVlanId = 2005
-        config.PvlanConfigSpec += pvlan
+        pvlan = vim.dvs.VmwareDistributedVirtualSwitch.PvlanConfigSpec() 
+        pvlan.operation = vim.ConfigSpecOperation.add
+        pvlan.pvlanEntry = vim.dvs.VmwareDistributedVirtualSwitch.PvlanMapEntry() 
+        pvlan.pvlanEntry.primaryVlanId = self.public_vlan_id 
+        pvlan.pvlanEntry.pvlanType = vim.VmwareDistributedVirtualSwitchPvlanPortType.promiscuous 
+        pvlan.pvlanEntry.secondaryVlanId =  self.public_vlan_id
+	private_vlan_config.append(pvlan)
 
-        pvlan = vim.VMwareDVSPvlanConfigSpec()
-        pvlan.operation = "add"
-        pvlan.pvlanEntry = vim.VMwareDVSPvlanMapEntry()
-        pvlan.pvlanEntry.primaryVlanId = 2003
-        pvlan.pvlanEntry.pvlanType = "isolated"
-        pvlan.pvlanEntry.secondaryVlanId = 2005
-        config.PvlanConfigSpec += pvlan
-
-        spec = [config]
-        spec.ConfigVersion = self.dv_switch.Config.ConfigVersion
-        task = self.dv_switch.ReconfigureDVS_Task(spec)
+        pvlan = vim.dvs.VmwareDistributedVirtualSwitch.PvlanConfigSpec() 
+        pvlan.operation = vim.ConfigSpecOperation.add
+        pvlan.pvlanEntry = vim.dvs.VmwareDistributedVirtualSwitch.PvlanMapEntry() 
+        pvlan.pvlanEntry.primaryVlanId = self.public_vlan_id 
+        pvlan.pvlanEntry.pvlanType = vim.VmwareDistributedVirtualSwitchPvlanPortType.community
+        pvlan.pvlanEntry.secondaryVlanId = self.private_vlan_id
+        private_vlan_config.append(pvlan)
+	
+	config.pvlanConfigSpec = private_vlan_config
+	config.configVersion = self.dv_switch.config.configVersion
+        task = self.dv_switch.ReconfigureDvs_Task(config)
         changed, result = wait_for_task(task)
         return changed, result
 
     def state_destroy_dvspg(self):
-        changed = True
-        result = None
+	config = vim.VMwareDVSConfigSpec()
+        private_vlan_config = []
+        pvlan = vim.dvs.VmwareDistributedVirtualSwitch.PvlanConfigSpec()
+        pvlan.operation = vim.ConfigSpecOperation.remove
+        pvlan.pvlanEntry = vim.dvs.VmwareDistributedVirtualSwitch.PvlanMapEntry()
+        pvlan.pvlanEntry.primaryVlanId = self.public_vlan_id
+        pvlan.pvlanEntry.pvlanType = vim.VmwareDistributedVirtualSwitchPvlanPortType.community
+        pvlan.pvlanEntry.secondaryVlanId =  self.private_vlan_id
+        private_vlan_config.append(pvlan)
 
-        if not self.module.check_mode:
-            task = self.dvs_portgroup.Destroy_Task()
-            changed, result = wait_for_task(task)
-        self.module.exit_json(changed=changed, result=str(result))
+        pvlan = vim.dvs.VmwareDistributedVirtualSwitch.PvlanConfigSpec()
+        pvlan.operation = vim.ConfigSpecOperation.remove
+        pvlan.pvlanEntry = vim.dvs.VmwareDistributedVirtualSwitch.PvlanMapEntry()
+        pvlan.pvlanEntry.primaryVlanId = self.public_vlan_id
+        pvlan.pvlanEntry.pvlanType = vim.VmwareDistributedVirtualSwitchPvlanPortType.promiscuous
+        pvlan.pvlanEntry.secondaryVlanId = self.public_vlan_id
+        private_vlan_config.append(pvlan)
+
+        config.pvlanConfigSpec = private_vlan_config
+        config.configVersion = self.dv_switch.config.configVersion
+        task = self.dv_switch.ReconfigureDvs_Task(config)
+        changed, result = wait_for_task(task)
+        return changed, result
 
     def state_exit_unchanged(self):
         self.module.exit_json(changed=False)
@@ -197,27 +218,27 @@ class VMwareDvsPortgroup(object):
 
     def check_dvspg_state(self):
         self.dv_switch = find_dvs_by_name(self.content, self.switch_name)
-
+	# Sorry a quick bypass. If we pass in a private_vland_id, and absent request, then return present to the init function to trick it to run destroy.
+	# TODO lookup private vlan id.
+	if self.state == 'absent':
+	        if self.private_vlan_id > 0:
+			return 'present'
         if self.dv_switch is None:
             raise Exception("A distributed virtual switch with name %s does not exist" % self.switch_name)
-        self.dvs_portgroup = find_dvspg_by_name(self.dv_switch, self.portgroup_name)
-
-        if self.dvs_portgroup is None:
-            return 'absent'
-        else:
             return 'present'
+        else:
+            return 'absent'
 
 
 def main():
     argument_spec = vmware_argument_spec()
-    argument_spec.update(dict(portgroup_name=dict(required=True, type='str'),
+    argument_spec.update(dict(
                          switch_name=dict(required=True, type='str'),
-                         vlan_id=dict(required=True, type='int'),
-                         num_ports=dict(required=True, type='int'),
+                         public_vlan_id=dict(required=True, type='int'),
+                         private_vlan_id=dict(required=True, type='int'),
                          allow_mac_changes=dict(required=False, type='bool',default=False),
                          allow_forged_transmits=dict(required=False, type='bool',default=False),
                          allow_promiscuous=dict(required=False, type='bool',default=False),
-                         portgroup_type=dict(required=True, choices=['earlyBinding', 'lateBinding', 'ephemeral'], type='str'),
                          state=dict(default='present', choices=['present', 'absent'], type='str')))
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

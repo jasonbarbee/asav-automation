@@ -122,7 +122,7 @@ class VMwareDvsPortgroup(object):
         self.allow_mac_changes = self.module.params['allow_mac_changes']
         self.allow_forged_transmits = self.module.params['allow_forged_transmits']
         self.allow_promiscuous = self.module.params['allow_promiscuous']
-        self.private_vlan_id = self.module.params['private_vlan_id']
+        self.private = self.module.params['private']
         self.dv_switch = None
         self.state = self.module.params['state']
         self.content = connect_to_api(module)
@@ -161,9 +161,9 @@ class VMwareDvsPortgroup(object):
 
         # vim.VmwareDistributedVirtualSwitchVlanIdSpec() does not exist in the
         # pyvmomi documentation but this is the correct managed object type
-	if self.private_vlan_id > 0:
+	if self.private:
 	       config.defaultPortConfig.vlan = vim.VmwareDistributedVirtualSwitchPvlanSpec()
-	       config.defaultPortConfig.vlan.pvlanId = self.private_vlan_id
+	       config.defaultPortConfig.vlan.pvlanId = self.vlan_id
 	else:
         	config.defaultPortConfig.vlan = vim.VmwareDistributedVirtualSwitchVlanIdSpec()
 	        config.defaultPortConfig.vlan.inherited = False
@@ -224,7 +224,7 @@ def main():
                          allow_mac_changes=dict(required=False, type='bool',default=False),
                          allow_forged_transmits=dict(required=False, type='bool',default=False),
                          allow_promiscuous=dict(required=False, type='bool',default=False),
-                         private_vlan_id=dict(required=False, type='int'),
+                         private=dict(required=False, type='bool'),
                          portgroup_type=dict(required=True, choices=['earlyBinding', 'lateBinding', 'ephemeral'], type='str'),
                          state=dict(default='present', choices=['present', 'absent'], type='str')))
 

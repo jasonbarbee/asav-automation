@@ -15,6 +15,17 @@
       - id: 2003
         name: MPLS
         subnet: '192.168.202.0'
+    private_vlans:
+      SFInside:
+        public: 36
+        private: 37
+
+    private_vlan_groups:
+        - id: 36
+          name: 'ASAInside'
+        - id: 36
+          name: 'SFOutside'
+        
     # Subnet IP Addressing
     Subnet_SF_Inside: '192.168.200.0'
     Subnet_MGMT_Inside: '192.168.201.0'

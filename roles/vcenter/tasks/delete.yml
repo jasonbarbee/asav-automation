@@ -15,3 +15,36 @@
       allow_forged_transmits: True
     with_items: '{{vlans}}'
 
+  - name: Delete Customer Private Vlan portgroups
+    vmware_dvs_port_group:
+      hostname: '{{ inventory_hostname }}'
+      username: '{{vcenter_username}}'
+      password: '{{vcenter_password}}'
+      portgroup_name: '{{ Customer_VRF }}_{{item.name}}'
+      switch_name: dvSwitch
+      vlan_id: '{{ item.id }}'
+      num_ports: 10
+      portgroup_type: "ephemeral"
+      validate_certs: false
+      state: absent
+      allow_mac_changes: True
+      allow_promiscuous: True
+      allow_forged_transmits: True
+    with_items: '{{private_vlan_groups}}'
+
+  - name: Delete Customer portgroup for Private Vlan Networks
+    vmware_dvs_private_vlan:
+      hostname: '{{ inventory_hostname }}'
+      username: '{{vcenter_username}}'
+      password: '{{vcenter_password}}'
+      switch_name: dvSwitch
+      public_vlan_id: '{{ item.value.public }}'
+      private_vlan_id: '{{ item.value.private }}'
+      validate_certs: false
+      state: 'absent'
+      allow_mac_changes: True
+      allow_promiscuous: True
+      allow_forged_transmits: True
+    with_dict: '{{private_vlans}}'
+    run_once: true
+
