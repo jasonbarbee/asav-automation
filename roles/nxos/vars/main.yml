@@ -1,0 +1,11 @@
+---
+  nxapi:
+    host: '{{ inventory_hostname }}'
+    username: '{{ username}}'
+    password: '{{ password }}'
+    transport: nxapi
+  cli:
+    host: '{{ inventory_hostname }}'
+    username: '{{ username}}'
+    password: '{{ password }}'
+    transport: cli
