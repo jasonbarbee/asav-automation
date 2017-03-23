@@ -1,8 +1,12 @@
-# Specific Use case in progress. Breaking Changes coming.
+# Automated Deployed of ASAv.
+
 # Automating the following tasks:
+## Features that are workin Working:
 * Nexus creation of Vlans, SVIs, VRFs, Route leaking, HSRP
 * UCS Vlans, Assignment to Port Channels, Assignment to VNIC Template
-* Vmware Distributed switch
+* Vmware Distributed switch - vlans, DVS port groups, Private Vlans and interfaces.
+# Next Up:
+* ASAv, SourceFire, and NGIPS OVA deployment.
 
 Requirements
 * python 2.7 or higher 
