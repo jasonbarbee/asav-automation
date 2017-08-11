@@ -13,7 +13,7 @@
       ip: '{{ inventory_hostname }}'
       login: '{{ ucs_username }}'
       password: '{{ ucs_password }}'
-      vlan_name: '{{ item.name }}'
+      vlan_name: '{{Customer_VRF}}_{{ item.name }}'
       vlan_id: '{{ item.id }}'
       mcast_policy_name: ''
       policy_owner: 'local'
@@ -26,7 +26,7 @@
       ip: '{{ inventory_hostname }}'
       login: '{{ ucs_username }}'
       password: '{{ ucs_password }}'
-      vlan_name: '{{ item.name }}'
+      vlan_name: '{{Customer_VRF}}_{{ item.name }}'
       vlan_id: '{{ item.id }}'
       pc_id: '10'
       state: 'present'
@@ -38,30 +38,30 @@
       ip: '{{ inventory_hostname }}'
       login: '{{ ucs_username }}'
       password: '{{ ucs_password }}'
-      vlan_name: '{{ item.name }}'
+      vlan_name: '{{Customer_VRF}}_{{ item.name }}'
       vlan_id: '{{ item.id }}'
       pc_id: '11'
       state: 'present'
     with_items: '{{ vlans }}'
 
 
-  - name: Assign Vlan to VNIC Template
+  - name: Assign Vlan to VNIC Template A
     ucs_vlan_vnic:
       ip: '{{ inventory_hostname }}'
       login: '{{ ucs_username }}'
       password: '{{ ucs_password }}'
-      vlan_name: '{{ item.name }}'
-      vnic_template: '{{ vnic_template_a }}'
+      vlan_name: '{{Customer_VRF}}_{{ item.name }}'
+      vnic_template: '{{ vnic_template_prefix }}_A'
       state: 'present'
     with_items: '{{ vlans }}'
 
-  - name: Assign Vlan to VNIC Template
+  - name: Assign Vlan to VNIC Template B
     ucs_vlan_vnic:
       ip: '{{ inventory_hostname }}'
       login: '{{ ucs_username }}'
       password: '{{ ucs_password }}'
-      vlan_name: '{{ item.name }}'
-      vnic_template: '{{ vnic_template_b }}'
+      vlan_name: '{{Customer_VRF}}_{{ item.name }}'
+      vnic_template: '{{ vnic_template_prefix }}_B'
       state: 'present'
     with_items: '{{ vlans }}'
 

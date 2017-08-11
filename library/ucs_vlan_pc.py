@@ -99,7 +99,7 @@ def ucs_add_vlan_to_pc(module):
         try:
 #            mo = FabricEthLan(parent_mo_or_dn=obj, id=FI)
             mo_1 = FabricVlan(parent_mo_or_dn=obj, sharing="none", name=vlan_name, id=vlan_id, mcast_policy_name="", policy_owner="local", default_net="no", pub_nw_name="", compression_type="included")
-            mo_1_1 = FabricEthVlanPc(parent_mo_or_dn=mo_1, name=vlan_name, descr="", is_native=is_native, admin_speed=admin_speed, switch_id=FI, admin_state="enabled", oper_speed=admin_speed, port_id=pc_id)
+            mo_1_1 = FabricEthVlanPc(parent_mo_or_dn=mo_1, name="", descr="", is_native=is_native, admin_speed=admin_speed, switch_id=FI, admin_state="enabled", oper_speed=admin_speed, port_id=pc_id)
             ucsm.handle.add_mo(mo_1, modify_present=True)
 
             ucsm.handle.commit()
@@ -198,11 +198,11 @@ def main():
 
     if pc_id:
         if state == 'present':
-            if len(vlan_name) <= 16:
+            if len(vlan_name) <= 32:
                 results = ucs_add_vlan_to_pc(module)
                 module.exit_json(**results)
             else:
-                module.fail_json(msg='Vlan Name must be 16 char or less')
+                module.fail_json(msg='Vlan Name must be 32 char or less')
         else:
                 results = ucs_remove_vlan_from_pc(module)
                 module.exit_json(**results)

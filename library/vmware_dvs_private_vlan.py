@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 # Minor change by Jason Barbee 
 # Added security policy support - allow mac changes, forged transmits, promiscuous parameters.
@@ -127,7 +127,7 @@ class VMwareDvsPortgroup(object):
         try:
             dvspg_states = {
                 'absent': {
-                    'present': self.state_destroy_dvspg,
+                    'present': self.state_destroy_private_vlan,
                     'absent': self.state_exit_unchanged,
                 },
                 'present': {
@@ -137,6 +137,9 @@ class VMwareDvsPortgroup(object):
                 }
             }
             dvspg_states[self.state][self.check_dvspg_state()]()
+	# This didn't work here either.
+        except vim.fault.NotFound as notfound_fault:
+            self.module.fail_json(msg=str("Vlan Not Found!"))
         except vmodl.RuntimeFault as runtime_fault:
             self.module.fail_json(msg=runtime_fault.msg)
         except vmodl.MethodFault as method_fault:
@@ -177,7 +180,7 @@ class VMwareDvsPortgroup(object):
         changed, result = wait_for_task(task)
         return changed, result
 
-    def state_destroy_dvspg(self):
+    def destroy_private_vlan(self):
 	config = vim.VMwareDVSConfigSpec()
         private_vlan_config = []
         pvlan = vim.dvs.VmwareDistributedVirtualSwitch.PvlanConfigSpec()
@@ -198,9 +201,22 @@ class VMwareDvsPortgroup(object):
 
         config.pvlanConfigSpec = private_vlan_config
         config.configVersion = self.dv_switch.config.configVersion
-        task = self.dv_switch.ReconfigureDvs_Task(config)
-        changed, result = wait_for_task(task)
+	try:
+	        task = self.dv_switch.ReconfigureDvs_Task(config)
+	        changed, result = wait_for_task(task)
+	# couldn't get this exception to work. It rolls to the next one.
+	except vim.fault.NotFound as not_found:
+            self.module.fail_json(msg=str("Vlan Not Found! : ")+str(not_found))
+        except Exception as e:
+            self.module.fail_json(msg="Failure Deleting Vlans: {}".format(str(e.message)))
         return changed, result
+
+    def state_destroy_private_vlan(self):
+        changed = True
+        result = None
+
+        changed, result = self.destroy_private_vlan()
+        self.module.exit_json(changed=changed, result=str(result))
 
     def state_exit_unchanged(self):
         self.module.exit_json(changed=False)
