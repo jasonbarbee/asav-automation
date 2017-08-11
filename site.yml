@@ -1,5 +1,4 @@
 ---
-
 - name: Configure UCS with customer Vlan
   hosts: ucs-hosts
   connection: local

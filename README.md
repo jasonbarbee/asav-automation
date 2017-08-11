@@ -1,7 +1,7 @@
 # Automated Deployed of ASAv.
 
 # Automating the following tasks:
-## Features that are workin Working:
+## Features that are Working:
 * Nexus creation of Vlans, SVIs, VRFs, Route leaking, HSRP
 * UCS Vlans, Assignment to Port Channels, Assignment to VNIC Template
 * Vmware Distributed switch - vlans, DVS port groups, Private Vlans and interfaces.

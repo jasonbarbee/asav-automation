@@ -148,11 +148,11 @@ def ucs_remove_vlan_from_pc(module):
         lancloud = ucsm.handle.query_classid(class_id="FabricLanCloud") 
         try:
             mo = FabricEthLan(parent_mo_or_dn=obj, id=FI)
-            mo_1 = FabricVlan(parent_mo_or_dn=mo, sharing="none", name=vlan_name, id='vlan_id', mcast_policy_name="", policy_owner="local", default_net="no", pub_nw_name="", compression_type="included")
+            mo_1 = FabricVlan(parent_mo_or_dn=mo, sharing="none", name=vlan_name, id=vlan_id, mcast_policy_name="", policy_owner="local", default_net="no", pub_nw_name="", compression_type="included")
             mo_1_1 = ucsm.handle.query_children(
                 in_mo=mo_1,
                 class_id="FabricEthVlanPc",
-                filter_str='(vlan_name + + str(vlan_id), %s, type="eq")' % (vlan_nane,vlan_id)
+                filter_str='(vlan_name + + str(vlan_id), %s, type="eq")' % (vlan_name,vlan_id)
     	 	)  
             #mo_1_1 = FabricEthVlanPc(parent_mo_or_dn=mo_1, name=vlan_name + + str(vlan_id), descr="", is_native=is_native, admin_speed=admin_speed, switch_id=FI, admin_state="enabled", oper_speed=admin_speed, port_id=pc_id)
 
