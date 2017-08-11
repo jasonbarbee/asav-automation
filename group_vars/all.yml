@@ -1,33 +1,37 @@
 ---
-    Customer_ID: '12345678'
-    Customer_VRF: 'example'
+    # Customer ID and VRF Name must be 31 Characters or less for UCS to accept them.
+    Customer_ID: '11021837'
+    Customer_VRF: 'Armbrecht-Jackson'
 
     vlans:
-      # This Vlan is the SourceFire Inside Vlan.
-      - id: 2001
-        name: SFInside
-        subnet: '192.168.200.0'
-      # This Vlan is the Management Network, and is leaked via VRF tables outside the customer's network. 
-      - id: 2002
+      # SourceFire Inside Vlan. Will be pinned via private vlans to the SF Outside -> ASA Inside interface.
+      - id: 1312
+        name: SF-Inside
+        subnet: '172.17.0.192'
+      # Management Network. leaked via VRF tables outside the customer's network. 
+      - id: 1712
         name: Mgmt
-        subnet: '192.168.201.0'
+        subnet: '172.18.0.192'
       # Customer's Transport Network
-      - id: 2003
+      - id: 1112 
         name: MPLS
-        subnet: '192.168.202.0'
+        subnet: '172.16.2.192'
+
     private_vlans:
       SFInside:
-        public: 36
-        private: 37
+        public: 48 
+        private: 47
 
-    private_vlan_groups:
-        - id: 36
+    private_vlan_interfaces:
+        - id: 48
           name: 'ASAInside'
-        - id: 36
+        - id: 48
           name: 'SFOutside'
         
     # Subnet IP Addressing
-    Subnet_SF_Inside: '192.168.200.0'
-    Subnet_MGMT_Inside: '192.168.201.0'
-    Subnet_Transport: '192.168.202.0'
+    Subnet_SF_Inside: '172.17.0.192'
+    Subnet_MGMT_Inside: '172.18.0.192'
+    Subnet_Transport: '172.16.2.192'
+
+    vnic_template_prefix: 'MOBL_vNIC_INT'
 

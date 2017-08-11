@@ -30,7 +30,7 @@
       allow_mac_changes: True
       allow_promiscuous: True
       allow_forged_transmits: True
-    with_items: '{{private_vlan_groups}}'
+    with_items: '{{private_vlan_interfaces}}'
 
   - name: Create Customer portgroup
     vmware_dvs_port_group:

@@ -439,10 +439,10 @@ def main():
 
     if vlan_id:
         if state == 'present':
-            if len(vlan_name) <= 16:
+            if len(vlan_name) <= 32:
                 results = ucs_add_vlan(module)
             else:
-                module.fail_json(msg='Vlan Name must be 16 char or less')
+                module.fail_json(msg='Vlan Name must be 32 char or less')
         else:
                 results = ucs_remove_vlan(module)
         module.exit_json(**results)

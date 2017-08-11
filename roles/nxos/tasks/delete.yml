@@ -3,9 +3,7 @@
       vlan_id: "{{item.id}}"
       state:   "{{'absent' }}"
       admin_state: "{{ item.admin | default('up') }}"
-      transport: nxapi
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{ nxapi}}'
       host: '{{ inventory_hostname }}'
       port: 80
     with_items: "{{vlans}}"
@@ -15,9 +13,7 @@
       interface: "Vlan{{item.id}}"
       state: 'absent'
       host: "{{ inventory_hostname }}"
-      username: '{{ username }}'
-      password: '{{ password }}'
-      transport: nxapi
+      provider: '{{ nxapi}}'
     with_items: "{{vlans}}"
 
   - name:  Build Customer VRF

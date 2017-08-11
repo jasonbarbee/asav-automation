@@ -3,7 +3,6 @@
     nxos_facts:
       provider: '{{ nxapi }}'
       gather_subset: legacy
-    tags: [nx-create]
     register: facts
 
 #  - debug: var=facts.ansible_facts.interfaces_list
@@ -31,11 +30,8 @@
       state:   "{{item.state | default('present') }}"
       admin_state: "{{ item.admin | default('up') }}"
       name:    "{{ Customer_VRF }}_{{ item.name }}"
-      transport: nxapi
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{nxapi}}'
       host: '{{ inventory_hostname }}'
-      port: 80
     with_items: "{{vlans}}"
 
   - name: Create Interfaces for Customer '{{ Customer_VRF }}'
@@ -45,9 +41,7 @@
       mode: layer3
       description: "{{Customer_VRF }} - {{ item.name }}"
       host: "{{ inventory_hostname }}"
-      username: '{{ username }}'
-      password: '{{ password }}'
-      transport: nxapi
+      provider: '{{ nxapi }}'
     with_items: "{{vlans}}"
 
   - name:  Build Customer VRF
@@ -62,9 +56,7 @@
       state: 'present'
       vrf: '{{ Customer_VRF }}'
       host: "{{ inventory_hostname }}"
-      username: '{{ username }}'
-      password: '{{ password }}'
-      transport: nxapi
+      provider: '{{nxapi}}'
     with_items: "{{vlans}}"
 
   - name: BUILD Template - Build Vlans and SVI Interfaces

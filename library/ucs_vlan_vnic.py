@@ -84,7 +84,7 @@ def ucs_add_vlan_to_vnic(module):
     for FI in FILIST:
         try:
 #            mo = VnicLanConnTempl(parent_mo_or_dn="org-root", redundancy_pair_type="none", nw_ctrl_policy_name="", descr="", stats_policy_name="default", admin_cdn_name="", switch_id=FI, pin_to_group_name="INT_NEXUS_DATA", mtu="1500", policy_owner="local", peer_redundancy_templ_name="", templ_type="updating-template", qos_policy_name="", ident_pool_name="", cdn_source="vnic-name", name=vnic_template)
-            obj = ucsm.handle.query_dn("org-root/lan-conn-templ-"+vnic_template) 
+            obj = ucsm.handle.query_dn("org-root/lan-conn-templ-"+vnic_template)
             mo_1 = VnicEtherIf(parent_mo_or_dn=obj, default_net=default_net, name=vlan_name)
             ucsm.handle.add_mo(mo_1, True)
 	    ucsm.handle.commit()
@@ -168,10 +168,10 @@ def main():
 
     if vlan_name:
         if state == 'present':
-            if len(vlan_name) <= 16:
+            if len(vlan_name) <= 32:
                 results = ucs_add_vlan_to_vnic(module)
             else:
-                module.fail_json(msg='Vlan Name must be 16 char or less')
+                module.fail_json(msg='Vlan Name must be 32 char or less')
         else:
                 results = ucs_remove_vlan_from_vnic(module)
         module.exit_json(**results)
