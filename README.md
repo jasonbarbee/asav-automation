@@ -123,5 +123,5 @@ References/Credits
 https://github.com/btotharye/ansible-ucs
 Look for some of these modules to head back to his repo when they are polished.
 
-ISSUES:
-When deleting the vlan from the VNIC - in version 2.2(6d) it succeeds but does NOT fully remove the vlan. I have tested this against the UCS 3.1 platform emulator, and it works correctly in that version. This appears to be a software defect. 
+#ISSUES:
+When deleting the vlan from the VNIC - in version 2.2(6d) it succeeds but does NOT fully remove the vlan from the VNIC. I have tested this against the UCS 3.1 platform emulator, and it works correctly in that version. This appears to be a software defect. 
