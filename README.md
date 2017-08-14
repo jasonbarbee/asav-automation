@@ -87,17 +87,23 @@ Edit group variable files like customer.yml.
 ```
 ansible-playbook -i inventory site.yml -t create
 ```
-# Delete Vlans on NX, UCS, VCenter
+# Delete Vlans on All Systems NX, UCS, VCenter
 ```
 ansible-playbook -i inventiry site.yml -t delete
 ```
 
-There are tags per role You can also do this - create or delete per system.
+#Run playbooks per system create/delete
 
 ```
 ansible-playbook -i inventiry site.yml -t ucs-delete
 ansible-playbook -i inventiry site.yml -t nx-delete
 ansible-playbook -i inventiry site.yml -t vcenter-delete
+```
+
+```
+ansible-playbook -i inventiry site.yml -t ucs-create
+ansible-playbook -i inventiry site.yml -t nx-create
+ansible-playbook -i inventiry site.yml -t vcenter-create
 ```
 
 # Environment Setup
