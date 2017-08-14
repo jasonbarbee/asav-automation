@@ -124,13 +124,11 @@ def ucs_remove_vlan_from_vnic(module):
     except Exception as e:
         module.fail_json(msg=e)
 
-    FILIST = ['A','B']
+    FILIST = ['A']
     for FI in FILIST:
         try:
             mo_1 = ucsm.handle.query_dn("org-root/lan-conn-templ-"+vnic_template+"/if-"+vlan_name)
-            ucsm.handle.remove_mo(mo_1, True)
-
-#            ucsm.handle.remove_mo(mo_1_1)
+            ucsm.handle.remove_mo(mo_1, False)
             ucsm.handle.commit()
             results['changed'] = True
 
