@@ -10,8 +10,8 @@
 
 Requirements
 * python 2.7 or higher 
-* Ansible 2.2.0 - 2.3 has a nxos shell script bug, 2.4 has some template issues.
-* Custom modules included in the repo
+* Ansible 2.2.0 - issues updating, some NX bugs in 2.3.
+* Custom modules included in the repo - in the library folder.
 * Cisco UCSM-SDK - pip install ucsmsdk
 * PyVmomi Vmware SDK - pip install pyvmomi
 
@@ -30,16 +30,27 @@ Tested on
 username='nxapi'
 password='nxapi'
 
+[NX:vars]
+vnic_template_prefix='MOBL_vNIC_INT_'
+
+
 [ucs]
-192.168.123.206
+10.2.2.2
 
 [ucs:vars]
 ucs_username="ucspe"
 ucs_password="ucspe"
 
+[vcenter]
+10.1.1.1
+
+[vcenter:vars]
+vcenter_username="admin@vsphere.local"
+vcenter_password="password"
+
 ```
 
-Edit group variable files like the group_vars/all.yml.
+Edit group variable files like customer.yml.
 ```yaml
 ---
     Customer_ID: '12345678'
@@ -48,41 +59,58 @@ Edit group variable files like the group_vars/all.yml.
     vlans:
       # This Vlan is the SourceFire Inside Vlan.
       - id: 2001
-        name: Test_SFInside
+        name: SFInside
         subnet: '192.168.200.0'
-      # This Vlan is the Management Network, and is leaked via VRF tables outside the customer's network. 
+      # This Vlan is the Management Network, and is leaked via VRF tables outside the customer's network.
       - id: 2002
-        name: Test_Mgmt
+        name: Mgmt
         subnet: '192.168.201.0'
       # Customer's Transport Network
       - id: 2003
-        name: Test_MPLS
+        name: MPLS
         subnet: '192.168.202.0'
-```
-Confirm the UCS VNIC Templates - roles/ucs/vars/vnics.yml
-```yaml
-    # Site Specific UCS Customer VNICs
-    vnic_template_a: 'MOBL_vNIC_INT_A'
-    vnic_template_b: 'MOBL_vNIC_INT_B'
+
+    private_vlans:
+      SFInside:
+        public: 36
+        private: 37
+
+    private_vlan_groups:
+        - id: 36
+          name: 'ASAInside'
+        - id: 36
+
 ```
 
-# Create Vlans on NX, UCS.
-ansible-playbook site.yml -t create
+# Create Vlans on NX, UCS, VCenter
+```
+ansible-playbook -i inventory site.yml -t create
+```
+# Delete Vlans on NX, UCS, VCenter
+```
+ansible-playbook -i inventiry site.yml -t delete
+```
 
-# Delete Vlans on NX, UCS.
-ansible-playbook site.yml -t delete
+There are tags per role You can also do this - create or delete per system.
+
+```
+ansible-playbook -i inventiry site.yml -t ucs-delete
+ansible-playbook -i inventiry site.yml -t nx-delete
+ansible-playbook -i inventiry site.yml -t vcenter-delete
+```
 
 # Environment Setup
 To use the UCS Library Module you need to add it to your PYTHONPATH
 
 export PYTHONPATH="${PYTHONPATH}:/this/repos/library/folder
 
-In my case, it was
- 
+In my case, my .bashrc looks like this and everything is happy
+```
 export PYTHONPATH="/usr/lib/python2.6/site-packages"
-export PYTHONPATH="${PYTHONPATH}:/home/mfuser/ansible"
+export PYTHONPATH="${PYTHONPATH}:/home/myusername/ansible"
+```
 
-I had a strange issue with selinux on CentOS had to copy it into site packages manually from /usr/lib64/site-packages/selinux
+I had a strange issue with selinux on CentOS had to copy it into site packages manually from /usr/lib64/site-packages/selinux. CentOS issue.
 
 References/Credits
 https://github.com/btotharye/ansible-ucs
