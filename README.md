@@ -15,6 +15,11 @@ Requirements
 * Cisco UCSM-SDK - pip install ucsmsdk
 * PyVmomi Vmware SDK - pip install pyvmomi
 
+Tested on 
+* UCS Version 2.2(6d)
+* Ansible 2.2.2
+* VCenter 6.0.0
+
 # Define Ansible Inventory file like this
 ```yaml
 [NX]
