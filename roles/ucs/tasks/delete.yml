@@ -1,6 +1,6 @@
 ---
 
-  - name: Remove Vlan to VNIC Template A
+  - name: Remove Vlan from VNIC Template A
     ucs_vlan_vnic:
       ip: '{{ inventory_hostname }}'
       login: '{{ ucs_username }}'
@@ -10,7 +10,7 @@
       state: 'absent'
     with_items: '{{ vlans }}'
 
-  - name: Remove Vlan to VNIC Template B
+  - name: Remove Vlan from VNIC Template B
     ucs_vlan_vnic:
       ip: '{{ inventory_hostname }}'
       login: '{{ ucs_username }}'

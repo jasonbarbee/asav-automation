@@ -10,7 +10,7 @@
 
 Requirements
 * python 2.7 or higher 
-* Ansible 2.2+
+* Ansible 2.2.0 - 2.3 has a nxos shell script bug, 2.4 has some template issues.
 * Custom modules included in the repo
 * Cisco UCSM-SDK - pip install ucsmsdk
 * PyVmomi Vmware SDK - pip install pyvmomi
