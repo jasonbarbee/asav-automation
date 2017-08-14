@@ -46,7 +46,7 @@ router bgp 65001
 #}
 
 interface Vlan{{ vlans[0].id }}
-  description {{ Customer_VRF }}_Sourcefire Inside
+  description {{ Customer_VRF }}_Sourcefire Inside_{{ Customer_ID}}
   no shutdown
   no ip redirects
   ip address {{ vlans[0].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[0].subnet.split('.')[3] | int + SVI_oct }}/28
@@ -57,7 +57,7 @@ interface Vlan{{ vlans[0].id }}
   ip {{ vlans[0].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[0].subnet.split('.')[3] | int + 1 }}
 
 interface Vlan{{ vlans[0].id }}
-  description {{ Customer_VRF }}_MGMT_Inside_12345678
+  description {{ Customer_VRF }}_MGMT_Inside_{{ Customer_ID}}_
   no shutdown
   no ip redirects
   {# Strips the last digit, increments address #}
@@ -69,7 +69,7 @@ interface Vlan{{ vlans[0].id }}
   ip {{ vlans[1].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[1].subnet.split('.')[3] | int + 1 }}
 
 interface Vlan{{ vlans[2].id }}
-  desc {{ Customer_VRF }}_Transport_12345678
+  desc {{ Customer_VRF }}_Transport_{{ Customer_ID}}
   no shutdown
   ip address {{ vlans[2].subnet | regex_replace('(^.*\.).*$', '\\1') }}{{vlans[2].subnet.split('.')[3] | int + SVI_oct }}/28
   no ipv6 redirects

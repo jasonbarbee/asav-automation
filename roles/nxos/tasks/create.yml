@@ -29,7 +29,7 @@
       vlan_id: "{{item.id}}"
       state:   "{{item.state | default('present') }}"
       admin_state: "{{ item.admin | default('up') }}"
-      name:    "{{ Customer_VRF }}_{{ item.name }}"
+      name:    "{{ Customer_VRF }}_{{ Customer_ID}}_{{ item.name }}"
       provider: '{{nxapi}}'
       host: '{{ inventory_hostname }}'
     with_items: "{{vlans}}"
@@ -39,7 +39,7 @@
       interface: "Vlan{{item.id}}"
       state: 'present'
       mode: layer3
-      description: "{{Customer_VRF }} - {{ item.name }}"
+      description: "{{Customer_VRF }} - {{ Customer_ID}} - {{ item.name }}"
       host: "{{ inventory_hostname }}"
       provider: '{{ nxapi }}'
     with_items: "{{vlans}}"
