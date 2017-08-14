@@ -72,6 +72,13 @@ To use the UCS Library Module you need to add it to your PYTHONPATH
 
 export PYTHONPATH="${PYTHONPATH}:/this/repos/library/folder
 
+In my case, it was
+ 
+export PYTHONPATH="/usr/lib/python2.6/site-packages"
+export PYTHONPATH="${PYTHONPATH}:/home/mfuser/ansible"
+
+I had a strange issue with selinux on CentOS had to copy it into site packages manually from /usr/lib64/site-packages/selinux
+
 References/Credits
 https://github.com/btotharye/ansible-ucs
 Look for some of these modules to head back to his repo when they are polished.
