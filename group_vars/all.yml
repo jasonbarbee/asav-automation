@@ -1,0 +1,37 @@
+---
+    # Customer ID and VRF Name must be 31 Characters or less for UCS to accept them.
+    # 8 digit or so string of Digits
+    Customer_ID: '11021837'
+    # Name without the Circuit ID
+    Customer_VRF: 'ArmbrechtJackson'
+
+    vlans:
+      # SourceFire Inside Vlan. Will be pinned via private vlans to the SF Outside -> ASA Inside interface.
+      - id: 1312
+        # Name Suffix - Do not change
+        name: 'SFInside'
+        subnet: '172.17.0.192'
+      # Management Network. leaked via VRF tables outside the customer's network.
+      - id: 1712
+        # Name Suffix - Do not change
+        name: 'Mgmt'
+        subnet: '172.18.0.192'
+      # Customer's Transport Network
+      - id: 1112
+        # Name Suffix - Do not change
+        name: 'MPLS'
+        subnet: '172.16.2.192'
+
+    private_vlans:
+      SFInside:
+        public: 48
+        private: 47
+
+    private_vlan_interfaces:
+        - id: 48
+          # Name Suffix - Do not change
+          name: 'ASAInside'
+        - id: 48
+          # Name Suffix - Do not change
+          name: 'SFOutside'
+
