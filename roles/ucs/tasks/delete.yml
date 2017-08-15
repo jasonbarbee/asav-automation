@@ -6,7 +6,7 @@
       login: '{{ ucs_username }}'
       password: '{{ ucs_password }}'
       vlan_name: '{{Customer_VRF}}_{{ item.name }}'
-      vnic_template: '{{ vnic_template_prefix }}_A'
+      vnic_template: '{{ vnic_template_prefix }}A'
       state: 'absent'
     with_items: '{{ vlans }}'
 
@@ -16,7 +16,7 @@
       login: '{{ ucs_username }}'
       password: '{{ ucs_password }}'
       vlan_name: '{{Customer_VRF}}_{{ item.name }}'
-      vnic_template: '{{ vnic_template_prefix }}_B'
+      vnic_template: '{{ vnic_template_prefix }}B'
       state: 'absent'
     with_items: '{{ vlans }}'
 

@@ -72,6 +72,7 @@ def ucs_add_vlan_to_vnic(module):
     ucsm = UCS(ucsm_ip, ucsm_login, ucsm_pw)
 
     results = {}
+    results['vnic'] = vnic_template
 
     #Login to UCSM
     try:
@@ -80,7 +81,7 @@ def ucs_add_vlan_to_vnic(module):
     except Exception as e:
         module.fail_json(msg=e)
 
-    FILIST = ['A', 'B']
+    FILIST = ['A']
     for FI in FILIST:
         try:
 #            mo = VnicLanConnTempl(parent_mo_or_dn="org-root", redundancy_pair_type="none", nw_ctrl_policy_name="", descr="", stats_policy_name="default", admin_cdn_name="", switch_id=FI, pin_to_group_name="INT_NEXUS_DATA", mtu="1500", policy_owner="local", peer_redundancy_templ_name="", templ_type="updating-template", qos_policy_name="", ident_pool_name="", cdn_source="vnic-name", name=vnic_template)
@@ -116,6 +117,7 @@ def ucs_remove_vlan_from_vnic(module):
     ucsm = UCS(ucsm_ip, ucsm_login, ucsm_pw)
 
     results = {}
+    results['vnic'] = vnic_template
 
     #Login to UCSM
     try:
@@ -127,8 +129,8 @@ def ucs_remove_vlan_from_vnic(module):
     FILIST = ['A']
     for FI in FILIST:
         try:
-            mo_1 = ucsm.handle.query_dn("org-root/lan-conn-templ-"+vnic_template+"/if-"+vlan_name)
-            ucsm.handle.remove_mo(mo_1, False)
+            mo_1 = ucsm.handle.query_dn("org-root/lan-conn-templ-" + vnic_template + "/if-" + vlan_name)
+            ucsm.handle.remove_mo(mo_1)
             ucsm.handle.commit()
             results['changed'] = True
 
