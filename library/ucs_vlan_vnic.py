@@ -83,9 +83,9 @@ def ucs_add_vlan_to_vnic(module):
     FILIST = ['A']
     for FI in FILIST:
         try:
-            obj = ucsm.handle.query_dn("org-root/lan-conn-templ-"+vnic_template)
+            obj = ucsm.handle.query_dn("org-root/lan-conn-templ-" + vnic_template)
             mo_1 = VnicEtherIf(parent_mo_or_dn=obj, default_net=default_net, name=vlan_name)
-            ucsm.handle.add_mo(mo_1, True)
+            ucsm.handle.add_mo(mo_1)
 	    ucsm.handle.commit()
 
             results['changed'] = True
@@ -126,8 +126,8 @@ def ucs_remove_vlan_from_vnic(module):
     FILIST = ['A']
     for FI in FILIST:
         try:
-            mo_1 = ucsm.handle.query_dn("org-root/lan-conn-templ-"+vnic_template+"/if-"+vlan_name)
-            ucsm.handle.remove_mo(mo_1, False)
+            mo_1 = ucsm.handle.query_dn("org-root/lan-conn-templ-" + vnic_template + "/if-" + vlan_name)
+            ucsm.handle.remove_mo(mo_1)
             ucsm.handle.commit()
             results['changed'] = True
 
