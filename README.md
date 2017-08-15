@@ -1,12 +1,13 @@
-# Automated Deployed of ASAv.
+# Automated Deployed of ASAv
 
 # Automating the following tasks:
-## Features that are Working:
+## Current Working Features
 * Nexus creation of Vlans, SVIs, VRFs, Route leaking, HSRP
 * UCS Vlans, Assignment to Port Channels, Assignment to VNIC Template
 * Vmware Distributed switch - vlans, DVS port groups, Private Vlans and interfaces.
-# Next Up:
-* ASAv, SourceFire, and NGIPS OVA deployment.
+
+# Roadmap
+* Automate SAv, SourceFire, and NGIPS OVA deployment.
 
 Requirements
 * python 2.7 or higher 
@@ -86,17 +87,23 @@ Edit group variable files like customer.yml.
 ```
 ansible-playbook -i inventory site.yml -t create
 ```
-# Delete Vlans on NX, UCS, VCenter
+# Delete Vlans on All Systems NX, UCS, VCenter
 ```
 ansible-playbook -i inventiry site.yml -t delete
 ```
 
-There are tags per role You can also do this - create or delete per system.
+#Run playbooks per system create/delete
 
 ```
 ansible-playbook -i inventiry site.yml -t ucs-delete
 ansible-playbook -i inventiry site.yml -t nx-delete
 ansible-playbook -i inventiry site.yml -t vcenter-delete
+```
+
+```
+ansible-playbook -i inventiry site.yml -t ucs-create
+ansible-playbook -i inventiry site.yml -t nx-create
+ansible-playbook -i inventiry site.yml -t vcenter-create
 ```
 
 # Environment Setup
@@ -116,6 +123,5 @@ References/Credits
 https://github.com/btotharye/ansible-ucs
 Look for some of these modules to head back to his repo when they are polished.
 
-TODO:
-Fix naming on NX - prefixing vlans.
-
+#ISSUES:
+When deleting the vlan from the VNIC - in version 2.2(6d) it succeeds but does NOT fully remove the vlan from the VNIC. I have tested this against the UCS 3.1 platform emulator, and it works correctly in that version. This appears to be a software defect. 
